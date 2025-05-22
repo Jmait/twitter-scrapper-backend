@@ -71,23 +71,9 @@ addSubscription(userId: string, username: string) {
   async checkForNewTweets(username: string) {
      try {
           const result = await this.fetchTweets(username);
-    // for (const [userId, username] of this.subscriptions.entries()) {
-       
-    //     const tweets = result?.data || result.tweets;
-
-    //     if (tweets?.length) {
-    //       const latestTweet = tweets[0];
-    //       if (latestTweet.id && this.lastTweets.get(username) !== latestTweet.id) {
-    //         this.lastTweets.set(username, latestTweet.id);
-    //         if (this.io) {
-    //           this.io.emit('tweet', { userId, tweet: latestTweet });
-    //         }
-    //       }
-    //     }
-    //     return tweets;
-    //   }
+  console.log('result', result);
     console.log('hitting me');    
-    if (result) {
+    if (result&&result.data) {
          return result.data.map((result)=>{
         return  {
             text: result.text,
