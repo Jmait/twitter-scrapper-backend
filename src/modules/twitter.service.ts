@@ -6,7 +6,7 @@ import { Server } from 'socket.io';
 
 @Injectable()
 export class TwitterService implements OnModuleInit {
-    private readonly config: ConfigService;
+   constructor(private config: ConfigService) {}
   private subscriptions = new Map<string, string>(); // userId -> username
   private lastTweets = new Map<string, string>(); // username -> last tweet ID
   private io: Server;
