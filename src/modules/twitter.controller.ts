@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Controller, Get, Param, Post } from "@nestjs/common";
 import { TwitterService } from "./twitter.service";
 
 @Controller('twitter')
@@ -8,7 +8,14 @@ export class TwitterController {
     ) {}
     @Get('tweets/:username')
     async getTwitterData(@Param('username') username: string) {
+        console.log('hello')
         const data = await this.twitterService.checkForNewTweets(username);
+        return data;
+    }
+    @Post('tweets/:username')
+    async subscribe(@Param('username') username: string) {
+        console.log('hello')
+        const data = await this.twitterService.subscribe(username);
         return data;
     }
 }

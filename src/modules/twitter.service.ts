@@ -3,17 +3,21 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as qs from 'querystring';
 import { Server } from 'socket.io';
-
+import { TwitterGateway } from './twitter.gateway';
+import { Cron, CronExpression } from '@nestjs/schedule';
+const handles = ['elonmusk'];
 @Injectable()
 export class TwitterService implements OnModuleInit {
-   constructor(private readonly config: ConfigService) {}
+   constructor(
+    private readonly config: ConfigService, 
+  ) {}
   private subscriptions = new Map<string, string>(); // userId -> username
 
   private io: Server;
   setSocketServer(io: Server) {
     this.io = io;
   }
-
+  
     async getBearerToken(): Promise<string> {
     const apiKey = this.config.get('TWITTER_API_KEY');
     const apiSecret = this.config.get('TWITTER_API_SECRET');
@@ -41,7 +45,12 @@ export class TwitterService implements OnModuleInit {
     }
   }
 
-
+  subscribe(username:string){
+    if (handles.length>0) {
+     handles.pop()
+    }
+    handles.push(username);
+  }
 
   async fetchTweets(username: string): Promise<any> {
     try {
@@ -67,13 +76,21 @@ addSubscription(userId: string, username: string) {
     return this.subscriptions.get(userId);
   }
 
-
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async checkForNewTweets(username: string) {
      try {
-          const result = await this.fetchTweets(username);
-  console.log('result', result);
-    console.log('hitting me');    
+        
+           console.log(handles)
+          const result = await this.fetchTweets(handles[0]);
+ 
     if (result&&result.data) {
+        this.io.emit('tweet',result.data.map((result)=>{
+        return  {
+            text: result.text,
+            created_at: result.created_at,
+            author:handles[0],
+        }
+    }) )
          return result.data.map((result)=>{
         return  {
             text: result.text,
@@ -82,6 +99,8 @@ addSubscription(userId: string, username: string) {
         }
     }) 
     }else{
+          this.io.emit('tweet'
+            ,[])
         return [];
     }
      } catch (error) {
