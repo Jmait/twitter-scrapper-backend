@@ -15,6 +15,7 @@ export class TwitterGateway implements OnGatewayInit, OnGatewayConnection {
   
     handleConnection(client: Socket, ...args: any[]) {
       connectedClient=client;
+      console.log('Client connected:', client.id);
     }
 
   afterInit(server: Server) {

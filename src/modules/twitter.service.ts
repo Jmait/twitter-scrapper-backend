@@ -5,11 +5,15 @@ import * as qs from 'querystring';
 import { Server } from 'socket.io';
 import { TwitterGateway } from './twitter.gateway';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { TweetDocument, Tweets } from './../db/tweets.schema';
 const handles = ['elonmusk'];
 @Injectable()
 export class TwitterService implements OnModuleInit {
    constructor(
     private readonly config: ConfigService, 
+    @InjectModel(Tweets.name) private tweetModel: Model<TweetDocument>,
   ) {}
   private subscriptions = new Map<string, string>(); // userId -> username
 
@@ -90,12 +94,49 @@ addSubscription(userId: string, username: string) {
             created_at: result.created_at,
             author:handles[0],
         }
-    }) )
+    }) );
+       await  this.tweetModel.insertMany(result.data.map((result)=>{
+        return  {
+            text: result.text,
+            createdAt: result.created_at,
+            author:handles[0],
+          }}));
+          
          return result.data.map((result)=>{
         return  {
             text: result.text,
             created_at: result.created_at,
             author:username,
+        }
+    }) 
+    }else{
+          this.io.emit('tweet'
+            ,[])
+        return [];
+    }
+     } catch (error) {
+    console.error('Error fetching tweets', error);
+     }
+  }
+
+
+   async getSavedTweets() {
+    
+     try {
+      const result = await this.tweetModel.find();
+    if (result) {
+        this.io.emit('tweet',result.map((result)=>{
+        return  {
+            text: result.text,
+            created_at: result.created_at,
+            author:result.author,
+        }
+    }) ); 
+         return result.map((result)=>{
+        return  {
+            text: result.text,
+            created_at: result.created_at,
+            author:result.author,
         }
     }) 
     }else{

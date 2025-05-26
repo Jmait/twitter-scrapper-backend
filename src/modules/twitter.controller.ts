@@ -6,10 +6,10 @@ export class TwitterController {
     constructor(
         private readonly twitterService: TwitterService
     ) {}
-    @Get('tweets/:username')
-    async getTwitterData(@Param('username') username: string) {
+    @Get('tweets')
+    async getTwitterData() {
         console.log('hello')
-        const data = await this.twitterService.checkForNewTweets(username);
+        const data = await this.twitterService.getSavedTweets();
         return data;
     }
     @Post('tweets/:username')
