@@ -8,7 +8,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
   });
-  await app.listen(9000);
+  await app.listen(process.env.PORT||9000);
   
 }
 bootstrap();
