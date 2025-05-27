@@ -98,7 +98,7 @@ addSubscription(userId: string, username: string) {
         return  {
             text: result.text,
             created_at: result.created_at,
-            author:handles[0],
+            author:handles[0].username,
         }
     }) );
      const saved =  await  this.tweetModel.insertMany(result.data.map((result)=>{
@@ -106,7 +106,7 @@ addSubscription(userId: string, username: string) {
             text: result.text,
             tweetId: result.id,
             createdAt: result.created_at,
-            author:handles[0],
+            author:handles[0].username,
           }}), {ordered: false});
           console.log('Saved tweets:', saved);
          return result.data.map((result)=>{
