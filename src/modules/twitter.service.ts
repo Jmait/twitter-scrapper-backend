@@ -117,8 +117,16 @@ addSubscription(userId: string, username: string) {
         }
     }) 
     }else{
-      const existingTweets = await this.tweetModel.find();
-      this.io.emit('tweet',existingTweets)
+      const existingTweets = await this.tweetModel.find({
+        
+      }).sort({_id:-1})
+      this.io.emit('tweet',existingTweets.map((result)=>{
+        return{
+            text: result.text,
+            created_at: result.created_at,
+            author:result.author,
+        }
+      }))
      
     }
          }
@@ -131,7 +139,7 @@ addSubscription(userId: string, username: string) {
    async getSavedTweets() {
     
      try {
-      const result = await this.tweetModel.find();
+      const result = await this.tweetModel.find({}).sort({_id:-1});
     if (result) {
         this.io.emit('tweet',result.map((result)=>{
         return  {
