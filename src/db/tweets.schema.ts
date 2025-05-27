@@ -9,6 +9,9 @@ export class Tweets {
   author: string;
 
   @Prop({ required: true, unique: true })
+  tweetId: string;
+
+  @Prop({ required: true, unique: true })
   text: string;
 
 

@@ -60,7 +60,7 @@ export class TwitterService implements OnModuleInit {
     try {
         console.log('Fetching tweets for:', username);
       const response = await axios.get(
-        `https://api.twitter.com/2/tweets/search/recent?query=from:${username}&tweet.fields=id,created_at,text&max_results=5`,
+        `https://api.twitter.com/2/tweets/search/recent?query=from:${username}&tweet.fields=id,created_at,text`,
         { headers: { Authorization: `Bearer ${await this.getBearerToken()}` } }
       );
       return response.data;
@@ -95,13 +95,14 @@ addSubscription(userId: string, username: string) {
             author:handles[0],
         }
     }) );
-       await  this.tweetModel.insertMany(result.data.map((result)=>{
+     const saved =  await  this.tweetModel.insertMany(result.data.map((result)=>{
         return  {
             text: result.text,
+            tweetId: result.id,
             createdAt: result.created_at,
             author:handles[0],
-          }}));
-          
+          }}), {ordered: false});
+          console.log('Saved tweets:', saved);
          return result.data.map((result)=>{
         return  {
             text: result.text,
@@ -110,6 +111,14 @@ addSubscription(userId: string, username: string) {
         }
     }) 
     }else{
+      const result:any =[];
+        // const saved =  await  this.tweetModel.insertMany(result.map((result)=>{
+        // return  {
+        //     text: result.text??'starship',
+        //     tweetId: result.id??'123',
+        //     createdAt: result.created_at?? new Date(),
+        //     author:handles[0],
+        //   }}), {ordered: false});
           this.io.emit('tweet'
             ,[])
         return [];
