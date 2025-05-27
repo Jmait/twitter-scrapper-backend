@@ -117,17 +117,9 @@ addSubscription(userId: string, username: string) {
         }
     }) 
     }else{
-      const result:any =[];
-        // const saved =  await  this.tweetModel.insertMany(result.map((result)=>{
-        // return  {
-        //     text: result.text??'starship',
-        //     tweetId: result.id??'123',
-        //     createdAt: result.created_at?? new Date(),
-        //     author:handles[0],
-        //   }}), {ordered: false});
-          this.io.emit('tweet'
-            ,[])
-        return [];
+      const existingTweets = await this.tweetModel.find();
+      this.io.emit('tweet',existingTweets)
+     
     }
          }
      } catch (error) {
