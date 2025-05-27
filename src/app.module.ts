@@ -7,7 +7,8 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Tweets, UserSchema } from './db/tweets.schema';
+import { SubscriberSchema, Tweets, UserSchema } from './db/tweets.schema';
+import { Subscriber } from 'rxjs';
 
 @Module({
   imports: [
@@ -24,7 +25,11 @@ import { Tweets, UserSchema } from './db/tweets.schema';
          compressors: ['zlib'],
         zlibCompressionLevel: 6,
     }),
-    MongooseModule.forFeature([{ name: Tweets.name, schema: UserSchema, collection: 'tweets' }]),
+    MongooseModule.forFeature([{ name: Tweets.name, schema: UserSchema, collection: 'tweets' }, {
+      name: Subscriber.name,
+      schema: SubscriberSchema,
+      collection: 'subscribers'
+    }]),
     ScheduleModule.forRoot({})
   ],
   controllers: [AppController,TwitterController],

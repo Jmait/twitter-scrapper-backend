@@ -7,13 +7,14 @@ import { TwitterGateway } from './twitter.gateway';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { TweetDocument, Tweets } from './../db/tweets.schema';
-const handles = ['elonmusk'];
+import { SubDocument, Subscriber, TweetDocument, Tweets } from './../db/tweets.schema';
+
 @Injectable()
 export class TwitterService implements OnModuleInit {
    constructor(
     private readonly config: ConfigService, 
     @InjectModel(Tweets.name) private tweetModel: Model<TweetDocument>,
+      @InjectModel(Subscriber.name) private subModel: Model<SubDocument>,
   ) {}
   private subscriptions = new Map<string, string>(); // userId -> username
 
@@ -49,14 +50,19 @@ export class TwitterService implements OnModuleInit {
     }
   }
 
-  subscribe(username:string){
-    if (handles.length>0) {
-     handles.pop()
+ async subscribe(username:string){
+ 
+    const sub=   await this.subModel.find()
+       if(sub.length>0){
+      await this.subModel.findOneAndUpdate({username:sub[0].username},{username:username})
+    }else{
+      await this.subModel.insertOne({username:username})
     }
-    handles.push(username);
+    
+   
   }
 
-  async fetchTweets(username: string): Promise<any> {
+  async fetchTweets(username: any): Promise<any> {
     try {
         console.log('Fetching tweets for:', username);
       const response = await axios.get(
@@ -80,12 +86,12 @@ addSubscription(userId: string, username: string) {
     return this.subscriptions.get(userId);
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async checkForNewTweets(username: string) {
-     try {
-        
-           console.log(handles)
-          const result = await this.fetchTweets(handles[0]);
+     try {   
+           const handles = await this.subModel.find();
+         if(handles.length>0){
+                const result = await this.fetchTweets(handles[0].username);
       console.log('Fetched tweets:', result);
     if (result&&result.data) {
         this.io.emit('tweet',result.data.map((result)=>{
@@ -123,6 +129,7 @@ addSubscription(userId: string, username: string) {
             ,[])
         return [];
     }
+         }
      } catch (error) {
     console.error('Error fetching tweets', error);
      }

@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type TweetDocument = Tweets & Document;
+export type SubDocument = Subscriber & Document;
 
 @Schema()
 export class Tweets {
@@ -19,4 +20,10 @@ export class Tweets {
   created_at: Date;
 }
 
+@Schema()
+export class Subscriber{
+  @Prop({ required: true, unique: true })
+  username: string;
+}
 export const UserSchema = SchemaFactory.createForClass(Tweets);
+export const SubscriberSchema = SchemaFactory.createForClass(Subscriber);
