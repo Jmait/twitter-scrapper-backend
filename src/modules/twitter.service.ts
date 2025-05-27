@@ -60,7 +60,7 @@ export class TwitterService implements OnModuleInit {
     try {
         console.log('Fetching tweets for:', username);
       const response = await axios.get(
-        `https://api.twitter.com/2/tweets/search/recent?query=from:${username}&tweet.fields=id,created_at,text`,
+        `https://api.twitter.com/2/tweets/search/recent?query=from:${username}&tweet.fields=id,created_at,text&max_results=5`,
         { headers: { Authorization: `Bearer ${await this.getBearerToken()}` } }
       );
       return response.data;
@@ -86,7 +86,7 @@ addSubscription(userId: string, username: string) {
         
            console.log(handles)
           const result = await this.fetchTweets(handles[0]);
- 
+      console.log('Fetched tweets:', result);
     if (result&&result.data) {
         this.io.emit('tweet',result.data.map((result)=>{
         return  {
